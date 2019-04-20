@@ -248,7 +248,7 @@ if __name__ == '__main__':
         save_loc += '/'
     if not os.path.isdir(save_loc):
         os.system('mkdir -p '+save_loc)
-        shutil.copy('lib/index.php', out_dir+'index.php')
+        shutil.copy('lib/index.php', save_loc+'index.php')
 
     out_dir = save_loc + 'Run' + str(flag) + '_' + os.path.basename(args.config[:-4])
     if not os.path.exists(out_dir):
@@ -1162,7 +1162,6 @@ if __name__ == '__main__':
             if chain.GetEntries(selection) < 5:
                 print 'Not enought stat ({})'.format(chain.GetEntries(selection))
                 continue
-
 
 
             '''=========================== Space like variable ==========================='''
