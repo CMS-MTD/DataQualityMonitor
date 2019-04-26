@@ -26,7 +26,9 @@ def quantile(a, p, weight=None, f=None):
         h = create_TH1D(a, binning=[None, np.percentile(a, 2), np.percentile(a, 98)], weights=weight)
         f_q = h.GetBinContent(h.FindBin(q))/h.GetBinWidth(h.FindBin(q))
     if f_q == 0:
-        f_q = 1e-3
+        print a
+        print ''
+        f_q = None
         print '[ERROR]: Failed to estimate pdf'
     sigma_q = np.sqrt(p*(1-p)/(a.shape[0]*f_q**2))
     return q, sigma_q

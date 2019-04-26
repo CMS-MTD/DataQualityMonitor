@@ -1404,6 +1404,7 @@ if __name__ == '__main__':
                     aux_d = data[sel]
                     dt = aux_d[:,0]
 
+                    print ib, xd, xu, yd, yu
                     fill_TimeResHisto(N_bar, dt,
                                       h_2D_res_raw,
                                       ResRaw, 'TimeResRaw2D',
@@ -1445,7 +1446,7 @@ if __name__ == '__main__':
                         canvas['dt_vs_amp'][k].SaveAs(out_dir +  '/TimeRes2DAmp_bar{:02d}'.format(N_bar)+'/TvsAmp_{}'.format(ib)+figform)
 
                         dt_corr = dt - np.dot(inputs, coeff)
-
+                        
                         fill_TimeResHisto(N_bar, dt_corr,
                                           h_2D_res_amp,
                                           ResAmp, 'TimeRes2DAmp',
