@@ -123,13 +123,13 @@ def define_range_around_peak(h, perc = [0.4, 0.4], Range=[0.0, 99999.0]):
     n_low = n_pk
     while h.GetBinContent(n_low) > thr and n_low > 1:
         n_low -= 1
-    x_low = h.GetBinLowEdge(n_low)
+    x_low = np.max([h.GetBinLowEdge(n_low), Range[0]])
 
     thr = perc[1] * h.GetBinContent(n_pk)
     n_up = n_pk
     while h.GetBinContent(n_up) > thr and n_up < h.GetNbinsX():
         n_up += 1
-    x_up = h.GetBinLowEdge(n_up) + h.GetBinWidth(n_up)
+    x_up = np.min([h.GetBinLowEdge(n_up) + h.GetBinWidth(n_up), Range[1]])
     return x_low, x_up, n_pk
 
 def fill_TimeResHisto(k, dt, h2D, out_list, tagin, title_tag, canvas, save_canvas=True):
@@ -387,7 +387,7 @@ if __name__ == '__main__':
             name = 'h_int_'+str(k)
             title = 'Integral channel '+str(k)
             int_aux = -np.concatenate(list(tree2array(chain, 'integral['+str(k)+']', 'integral['+str(k)+'] != 0')))
-            h = rt.TH1D(name, title, 100, np.percentile(int_aux, 0.1), np.max(int_aux))
+            h = rt.TH1D(name, title, 100, np.percentile(int_aux, 0.1), np.percentile(int_aux, 99.9))
             h.SetXTitle('Integral [pC]')
             h.SetYTitle('Events / {:.1f} pC'.format(h.GetBinWidth(1)))
             chain.Project(name, '-integral['+str(k)+']', '-integral['+str(k)+'] != 0')
@@ -402,6 +402,7 @@ if __name__ == '__main__':
 
             x_low, x_up, n_pk = define_range_around_peak(h, [0.25, 0.3], Range)
 
+            h.SetStats(0)
             h.DrawCopy('E')
 
             gr = rt.TGraph(1)
@@ -1178,7 +1179,7 @@ if __name__ == '__main__':
             selection = BarInfo.sel
             selection += ['({v}[{L}]!= 0 && {v}[{R}]!=0)'.format(v=v_time, L=kL, R=kR)]
             selection = ' && '.join(selection)
-            print selection
+            # print selection
             if chain.GetEntries(selection) < 5:
                 print chain.GetEntries(selection)
                 print 'Not enought stat ({})'.format(chain.GetEntries(selection))
@@ -1252,6 +1253,8 @@ if __name__ == '__main__':
                     width = 0.1
                 if np.isnan(median):
                     continue
+                if width > 0.2:
+                    width = 0.2
                 title = 'Time resolution for channel '+str(k)+', width 10-90 = {:.2f} ns'.format(width)
                 h = create_TH1D(delta_t, name, title,
                                     binning = [ None, median-2*width, median+2*width],
@@ -1446,7 +1449,7 @@ if __name__ == '__main__':
                         canvas['dt_vs_amp'][k].SaveAs(out_dir +  '/TimeRes2DAmp_bar{:02d}'.format(N_bar)+'/TvsAmp_{}'.format(ib)+figform)
 
                         dt_corr = dt - np.dot(inputs, coeff)
-                        
+
                         fill_TimeResHisto(N_bar, dt_corr,
                                           h_2D_res_amp,
                                           ResAmp, 'TimeRes2DAmp',
