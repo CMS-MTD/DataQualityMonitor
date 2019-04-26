@@ -263,6 +263,9 @@ if __name__ == '__main__':
         if not root_file:
             print "[ERROR]: Input file not found:", f
             continue
+        if not (root_file.GetListOfKeys().At(0)):
+            print 'Skipping file with no streamer Info!!'
+            continue
         tree_name = root_file.GetListOfKeys().At(0).GetName()
         if i == 0:
             if tree_name != 'pulse':
@@ -1025,6 +1028,23 @@ if __name__ == '__main__':
             can.Update()
             can.SaveAs(out_dir + '/PositionXY_amp_weight_bar{:02d}'.format(N_bar)+figform)
 
+            AmpAvg_sum= np.mean([h1D_sum.GetBinContent(i)  for i in range(h1D_sum.GetNbinsX()) if (h1D_sum.GetBinCenter(i)>x_start and h1D_sum.GetBinCenter(i)<x_stop)])
+            AmpAvg_sum_err= np.mean([h1D_sum.GetBinError(i)  for i in range(h1D_sum.GetNbinsX()) if (h1D_sum.GetBinCenter(i)>x_start and h1D_sum.GetBinCenter(i)<x_stop)])
+            AmpAvg_L= np.mean([h1D_L.GetBinContent(i) for i in range(h1D_sum.GetNbinsX()) if (h1D_L.GetBinCenter(i)>x_start and h1D_L.GetBinCenter(i)<x_stop) ])
+            AmpAvg_L_err= np.mean([h1D_L.GetBinError(i)  for i in range(h1D_L.GetNbinsX()) if (h1D_L.GetBinCenter(i)>x_start and h1D_L.GetBinCenter(i)<x_stop)])
+            AmpAvg_R= np.mean([h1D_R.GetBinContent(i) for i in range(h1D_R.GetNbinsX()) if (h1D_R.GetBinCenter(i)>x_start and h1D_R.GetBinCenter(i)<x_stop) ])
+            AmpAvg_R_err= np.mean([h1D_R.GetBinError(i)  for i in range(h1D_R.GetNbinsX()) if (h1D_R.GetBinCenter(i)>x_start and h1D_R.GetBinCenter(i)<x_stop)])
+
+            file_ampres = open(headout_dir+'/Amplitude_bar{}.txt'.format(N_bar),'w')
+            ln = '#avg_amp_LplusR, avg_amp_LplusR_err, avg_amp_L, avg_amp_L_err, avg_amp_R, avg_amp_R_err\n'
+            file_ampres.write(ln)
+            ln = '{:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}  {:.2f}\n'.format(AmpAvg_sum,AmpAvg_sum_err,AmpAvg_L,AmpAvg_L_err,AmpAvg_R,AmpAvg_R_err)
+            file_ampres.write(ln)
+            file_ampres.close()
+            print "Average amplitude : ", AmpAvg_sum, "+/- ", AmpAvg_sum_err
+            print "Average left amplitude : ", AmpAvg_L, "+/- ", AmpAvg_L_err
+            print "Average right amplitude : ", AmpAvg_R, "+/- ", AmpAvg_R_err
+
             ''' -------------Avg integral-----------'''
 
             name = 'h_weight_pos_'+str(N_bar)
@@ -1158,8 +1178,9 @@ if __name__ == '__main__':
             selection = BarInfo.sel
             selection += ['({v}[{L}]!= 0 && {v}[{R}]!=0)'.format(v=v_time, L=kL, R=kR)]
             selection = ' && '.join(selection)
-
+            print selection
             if chain.GetEntries(selection) < 5:
+                print chain.GetEntries(selection)
                 print 'Not enought stat ({})'.format(chain.GetEntries(selection))
                 continue
 
