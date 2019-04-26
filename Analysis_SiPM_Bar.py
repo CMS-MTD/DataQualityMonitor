@@ -1254,6 +1254,8 @@ if __name__ == '__main__':
                 if np.isnan(median):
                     continue
                 if width > 0.2:
+                    if args.verbose:
+                        print 'Forcing the width to 200 ps'
                     width = 0.2
                 title = 'Time resolution for channel '+str(k)+', width 10-90 = {:.2f} ns'.format(width)
                 h = create_TH1D(delta_t, name, title,
@@ -1407,7 +1409,8 @@ if __name__ == '__main__':
                     aux_d = data[sel]
                     dt = aux_d[:,0]
 
-                    print ib, xd, xu, yd, yu
+                    if args.verbose:
+                        print ib, xd, xu, yd, yu
                     fill_TimeResHisto(N_bar, dt,
                                       h_2D_res_raw,
                                       ResRaw, 'TimeResRaw2D',
