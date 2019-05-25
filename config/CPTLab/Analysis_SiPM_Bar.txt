@@ -1,0 +1,13 @@
+-->Print: Amp Int TimeResRaw WaveColor
+#-->XYcenter-width: 10 25 10 8
+#-->SpaceBinSize: 1.
+#-->Var_photek: gaus_mean
+-->Var_photek: LP1_50 LP2_50 LP1_20 LP2_20
+-->Var_amp: LP1_50 LP2_50 LP1_20 LP2_20
+-->Var_time: LP1_50 LP2_50 LP1_20 LP2_20
+ch_num   idx_time  idx_dut   idx_ref         type  cut  min    max  shape
+0               0        0        -1       photek    I  200   1300   None
+1               0        0         0       time1L    A  400   1200   12x3
+2               0        0         0       amp1      A  100    800   12x3
+3               0        0         0       time1R    A  400   1200   12x3
+4               0        0         0       amp3      A  100    800   12x3

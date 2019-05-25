@@ -167,13 +167,16 @@ if __name__ == '__main__':
         rt.gROOT.SetBatch()
 
     configurations = Config(args.config)
-
+    print args.runs_interval
     if args.runs_interval==None:
         aux = re.search(r'Run[0-9]+', args.input_file[0])
         flag = aux.group(0)[3:]
         if len(args.input_file) > 1:
             aux = re.search(r'Run[0-9]+', args.input_file[-1])
             flag += '_'+aux.group(0)[3:]
+    elif int(args.runs_interval[0])==-1:
+        bname = os.path.basename(args.input_file[0])
+        flag = bname[:-5]
     elif len(args.runs_interval)==1 and not args.runs_interval[0].endswith('.txt'):
         N = args.runs_interval[0]
         args.input_file = [args.input_file[0].replace('XXX', str(N))]
@@ -372,7 +375,6 @@ if __name__ == '__main__':
 
         '''=========================== Risetime ======================================='''
         if 'Risetime' in configurations.plots:
-            print '\tRisetime'
             canvas['risetime'][k] = rt.TCanvas('c_risetime_'+str(k), 'c_int_'+str(k), 800, 600)
 
             nbins  = 100
@@ -407,7 +409,7 @@ if __name__ == '__main__':
             name = 'h_wave_'+str(k)
             title = 'Waveform color chart channel '+str(k)
 
-            h = rt.TH2D(name, title, 250, 0, 210, 250, -1100, 500)
+            h = rt.TH2D(name, title, 250, 0, 210, 250, -950, 300)
             h.SetXTitle('Time [ns]')
             h.SetYTitle('Voltage [mV]')
 

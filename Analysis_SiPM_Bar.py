@@ -6,7 +6,7 @@ from prettytable import PrettyTable
 
 import ROOT as rt
 from root_numpy import tree2array, tree2rec
-from lib.histo_utilities import create_TH1D, create_TH2D, quantile, rootTH2_to_np
+from lib.histo_utilities import create_TH1D, create_TH2D, quantile, rootTH2_to_np, EstimateDispersion
 from lib.cebefo_style import cebefo_style, Set_2D_colz_graphics
 
 donotdelete = []
@@ -223,6 +223,9 @@ if __name__ == '__main__':
         if len(args.input_file) > 1:
             aux = re.search(r'Run[0-9]+', args.input_file[-1])
             flag += '_'+aux.group(0)[3:]
+    elif int(args.runs_interval[0])==-1:
+        bname = os.path.basename(args.input_file[0])
+        flag = bname[:-5]
     elif len(args.runs_interval)==1 and not args.runs_interval[0].endswith('.txt'):
         N = args.runs_interval[0]
         args.input_file = [args.input_file[0].replace('XXX', str(N))]
@@ -1181,8 +1184,8 @@ if __name__ == '__main__':
             selection = ' && '.join(selection)
             # print selection
             if chain.GetEntries(selection) < 5:
-                print chain.GetEntries(selection)
                 print 'Not enought stat ({})'.format(chain.GetEntries(selection))
+                print 'Selection\n', selection,'\n'
                 continue
 
 
@@ -1268,6 +1271,16 @@ if __name__ == '__main__':
                 h = h.DrawCopy('LE')
                 canvas['t_res_raw'][N_bar].Update()
                 canvas['t_res_raw'][N_bar].SaveAs(out_dir + '/TimeResolution_raw_bar{:02d}'.format(N_bar)+figform)
+                tres, err = EstimateDispersion(delta_t)
+                tres *= 1000
+                err *= 1000
+                ln = '{:.2f}  {:.2f}  {}  {}  Raw\n'.format(tres, err, v_time, v_ref)
+                file_results.write(ln)
+
+                if best_result[N_bar].dT[0] < 0 or  best_result[N_bar].dT[0] > tres:
+                    best_result[N_bar].dT = [tres, err]
+                    best_result[N_bar].var = [v_time, v_ref]
+                    best_result[N_bar].AmpCorr = False
 
                 selection += '&& ({v} < {h} && {v} > {l})'.format(v=var_dT, h=median+2*width, l=median-2*width)
                 if args.verbose:
@@ -1535,7 +1548,7 @@ if __name__ == '__main__':
     table =  PrettyTable(['Bar', 'Best Resolution [ps]', 'Var ref', 'Var timr', 'Amp corrected'])
     for k, res in best_result.iteritems():
         row = [str(k), '{:.2f} +/- {:.2f}'.format(res.dT[0],res.dT[1])]
-        row += [res.var[1], res.var[0], 'Yes' if res.AmpCorr else 'No']
+        row += [res.var[1], res.var[0], 'Yes' if hasattr(res, 'AmpCorr') and res.AmpCorr else 'No']
         table.add_row(row)
 
     print table

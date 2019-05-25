@@ -1,0 +1,7 @@
+-->Print: Amp Int WaveColor Risetime TimeResRaw
+ch_num idx_time idx_dut idx_ref var_ref     cut  min     max   shape
+0      0        0       -1      LP1_50      I    0       100   None
+1      0        0       0       LP1_50      A    400     1200  None
+2      0        0       0       LP1_50      A    400     1200  None
+3      0        0       0       LP1_50      A    400     1200  None
+4      0        0       0       LP1_50      A    400     1200  None
